@@ -10,21 +10,40 @@ module.exports = (sequelize, DataTypes) => {
       });
       Pessoa.hasMany(models.Matricula, {
         foreignKey: 'estudante_id',
-        scope: { status: 'matriculado' },
+        // scope: { status: 'matriculado' },
         as: 'aulasMatriculadas'
       });
     }
   }
   Pessoa.init({
     nome: DataTypes.STRING,
-    email: DataTypes.STRING,
+    email: {
+      type: DataTypes.STRING,
+      validate: {
+        isEmail: {
+          args: true,
+          msg: 'Formato do email inválido'
+        }
+      }
+    },
     cpf: DataTypes.STRING,
     ativo: DataTypes.BOOLEAN,
     role: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Pessoa',
-    tableName: 'pessoas'
+    tableName: 'pessoas',
+    paranoid: true,
+    defaultScope: {
+      where: {
+        ativo: true,
+      }
+    },
+    scopes: {
+      todosOsRegistros: {
+        where: {}
+      }
+    }
   });
   return Pessoa;
 };
